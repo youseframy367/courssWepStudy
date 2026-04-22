@@ -1,0 +1,28 @@
+body {
+    font-family: Verdana, Tahoma, Geneva, sans-serif;
+    margin: 0px;
+}
+
+code,
+pre,
+h1 {
+    font-family: "Courier New", Courier, monospace;
+}
+
+.menu li:hover {
+    background-color: #63a763;
+    /* لون الخلفية عند المرور */
+    color: white;
+    /* لون النص عند المرور */
+    border-radius: 5px;
+    /* شكل دائري قليل */
+}
+
+h1,
+h2,
+h3 {
+    font-family: 'Poppins', sans-serif;
+}
+.courseVctive{
+    background-color: #63a763;
+}
