@@ -2,6 +2,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import AppHeader from "@/app/components/AppHeader";
 import CheatSheetModal from "@/app/components/CheatSheetModal";
@@ -10,18 +11,31 @@ import CourseCard from "@/app/components/CourseCard";
 import CourseRail from "@/app/components/CourseRail";
 import FontExplorer from "@/app/components/FontExplorer";
 import IconExplorer from "@/app/components/IconExplorer";
+import CodePlayground from "@/app/components/CodePlayground";
 import SiteFooter from "@/app/components/SiteFooter";
 import { courses, type Course } from "@/app/lib/courses";
+import StudyPathExplorer from "@/app/components/StudyPathExplorer";
+import PracticeHub from "@/app/components/PracticeHub";
+import { studyDomains, type StudyDomain } from "@/app/lib/study-domains";
 
 export default function HomeClient() {
+  const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeDomainSlug, setActiveDomainSlug] = useState(studyDomains[0].slug);
   const [showCheatSheet, setShowCheatSheet] = useState(false);
 
   useEffect(() => {
     setDarkMode(window.localStorage.getItem("course-web-theme") === "dark");
   }, []);
+  useEffect(() => {
+    const requestedDomain = studyDomains.find((domain) => domain.slug === searchParams.get("domain"));
+    if (!requestedDomain) return;
+    setActiveDomainSlug(requestedDomain.slug);
+    const courseIndex = courses.findIndex((course) => course.slug === requestedDomain.recommendedCourse);
+    if (courseIndex >= 0) setActiveIndex(courseIndex);
+  }, [searchParams]);
 
   const activeCourse = courses[activeIndex] ?? courses[0];
   const filteredCourses = useMemo(() => {
@@ -43,10 +57,17 @@ export default function HomeClient() {
     if (filteredCourses[0]) selectCourse(filteredCourses[0]);
     document.getElementById("featured-course")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
+  const selectDomain = (domain: StudyDomain) => {
+    setActiveDomainSlug(domain.slug);
+    const courseIndex = courses.findIndex((course) => course.slug === domain.recommendedCourse);
+    if (courseIndex >= 0) setActiveIndex(courseIndex);
+    window.setTimeout(() => document.getElementById("study-path")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
+  const activeDomain = studyDomains.find((domain) => domain.slug === activeDomainSlug) ?? studyDomains[0];
 
   return (
     <div className={darkMode ? "app-shell app-shell--dark" : "app-shell"}>
-      <AppHeader darkMode={darkMode} searchQuery={query} onSearchChange={setQuery} onThemeChange={toggleTheme} onCheatSheets={() => setShowCheatSheet(true)} />
+      <AppHeader darkMode={darkMode} searchQuery={query} onSearchChange={setQuery} onThemeChange={toggleTheme} onCheatSheets={() => setShowCheatSheet(true)} onSelectDomain={selectDomain} />
       <CourseRail courses={filteredCourses} activeSlug={activeCourse.slug} onSelect={selectCourse} />
       <main>
         <section className="home-hero">
@@ -64,12 +85,15 @@ export default function HomeClient() {
         </section>
         <div className="page-content">
           <div id="featured-course"><CourseCard course={activeCourse} darkMode={darkMode} onPrevious={() => rotateCourse(-1)} onNext={() => rotateCourse(1)} /></div>
+          <StudyPathExplorer domain={activeDomain} />
+          <PracticeHub domain={activeDomain} />
           <ColorExplorer />
           <FontExplorer />
           <IconExplorer />
+          <CodePlayground initialCode={activeCourse.lessons[0]?.example} />
         </div>
       </main>
-      <SiteFooter />
+      <SiteFooter courseSlug={activeCourse.slug} />
       {showCheatSheet && <CheatSheetModal course={activeCourse} onClose={() => setShowCheatSheet(false)} />}
     </div>
   );

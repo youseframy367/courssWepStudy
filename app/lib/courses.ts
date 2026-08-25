@@ -4,6 +4,15 @@ export type Lesson = {
   title: string;
   explain: string;
   example: string;
+  objective: string;
+};
+
+export type CourseQuestion = {
+  id: string;
+  prompt: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
 };
 
 export type Course = {
@@ -13,35 +22,52 @@ export type Course = {
   title: string;
   linkVideo: string;
   lessons: Lesson[];
+  checkpoints?: CourseQuestion[];
 };
 
 const icon = (name: string, file = name) => `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${name}/${file}-original.svg`;
 
 const lessonSet = (course: string, language: string, sample: string): Lesson[] => [
   {
-    id: "introduction",
-    title: "Introduction",
-    explain: `Welcome to ${course}.\nThis lesson introduces the core ideas you need before writing your first project.\nاقرأ المثال ثم جرّبه بنفسك خطوة بخطوة.`,
+    id: "roadmap",
+    title: "Roadmap and setup",
+    objective: `Understand where ${course} belongs in a real web project.`,
+    explain: `${course} becomes easier when you learn it as part of a small, repeatable workflow. Start by identifying the job this tool does, the files it uses, and one result you can verify in the browser.\nفي هذه البداية: اقرأ الكود، شغّله، ثم غيّر قيمة واحدة فقط واكتب ملاحظتك عن النتيجة. بهذه الطريقة تتحول البداية إلى مهارة عملية بدلاً من حفظ معلومات منفصلة.`,
     example: sample,
   },
   {
-    id: "basics",
-    title: "Basics",
-    explain: `The basic building blocks of ${course} are simple when you practice them in small pieces.\nاستخدم أسماء واضحة ونظّم الكود دائماً ليكون سهل القراءة.`,
+    id: "core-concepts",
+    title: "Core concepts",
+    objective: `Recognize the building blocks and vocabulary of ${course}.`,
+    explain: `Every ${course} project is built from a small set of core concepts. Learn the meaning of each part, then relate it to what the browser or server actually does. Focus on readable names, a single responsibility for each block, and predictable output.\nرتّب الكود بمسافات واضحة، واستخدم أسماء تعبّر عن الوظيفة. الكود الجيد ليس فقط الذي يعمل، بل الذي يمكن لأي شخص فهمه وتعديله بأمان.`,
     example: `${sample}\n\n// Keep each step small and readable`,
   },
   {
-    id: "practice",
-    title: "Practice",
-    explain: `Practice turns theory into a useful skill.\nأنشئ مثالاً صغيراً، ثم غيّر قيمة واحدة ولاحظ النتيجة.`,
-    example: `// ${course} practice\n${sample}`,
+    id: "pattern",
+    title: "A reusable pattern",
+    objective: `Turn one working example into a reusable coding pattern.`,
+    explain: `Use a repeatable pattern: define the input, apply ${course}, then inspect the output. This loop makes debugging faster because you always know what changed.\nطبّق النمط على مثال قصير: اكتب النسخة الأساسية أولاً، ثم أضف تحسيناً واحداً، ثم اختبره. لا تنتقل للخطوة التالية قبل أن تعرف لماذا ظهرت النتيجة الحالية.`,
+    example: `// ${course} pattern (${language})\n${sample}`,
   },
   {
-    id: "project",
-    title: "Mini project",
-    explain: `Build a compact project with ${course}.\nقسّم المشروع إلى أجزاء صغيرة ثم اختبر كل جزء قبل الانتقال للجزء التالي.`,
-    example: `// Mini project starter\n${sample}`,
+    id: "debugging",
+    title: "Debug and improve",
+    objective: `Find a small problem and fix it methodically.`,
+    explain: `Debugging is a process, not a guess. Reproduce the problem, reduce the code to its smallest version, check the browser or terminal output, and change one thing at a time.\nعندما يظهر خطأ، ابدأ برسالة الخطأ وسطر الكود المشار إليه. لا تنسخ حلولاً عشوائية؛ اشرح لنفسك لماذا لم يعمل الكود ثم جرّب حلاً صغيراً يمكن التحقق منه.`,
+    example: `// Add an intentional change, then inspect the result\n${sample}`,
   },
+  {
+    id: "mini-project",
+    title: "Mini project",
+    objective: `Combine the lesson skills into a small ${course} deliverable.`,
+    explain: `Finish with a focused mini project. Choose one useful screen or feature, list the smallest steps, and deliver a working first version before adding polish.\nقسّم المشروع إلى هدف واضح، واجهة أو مخرجات متوقعة، ثم اختبار بسيط. بعد الانتهاء اكتب ما الذي ستعيد تنظيمه لو بنيته مرة ثانية؛ هذه المراجعة هي التي تجعل التعلم منظماً ومستداماً.`,
+    example: `// ${course} mini-project starter\n${sample}`,
+  },
+];
+
+const checkpoints = (course: string, language: string): CourseQuestion[] => [
+  { id: `${language}-purpose`, prompt: `What is the best first step when learning ${course} in a new project?`, options: ["Change many files at once", "Run a small example and observe one result", "Skip the browser output", "Copy a large project without reading it"], answerIndex: 1, explanation: "A focused runnable example gives you a reliable feedback loop." },
+  { id: `${language}-debug`, prompt: `Which debugging habit makes ${course} code easier to improve?`, options: ["Guessing several changes", "Hiding error messages", "Changing one variable and verifying the output", "Avoiding small experiments"], answerIndex: 2, explanation: "Small verified changes help you locate the real cause of a problem." },
 ];
 
 export const courses: Course[] = [
@@ -70,3 +96,5 @@ export const courses: Course[] = [
 ];
 
 export const courseBySlug = Object.fromEntries(courses.map((course) => [course.slug, course])) as Record<string, Course>;
+
+export const getCourseCheckpoints = (course: Course) => course.checkpoints ?? checkpoints(course.name, course.slug);

@@ -7,7 +7,11 @@ import { ChevronLeft, ChevronRight, ExternalLink, Home, Play, Sun, Moon } from "
 import { useEffect, useMemo, useState } from "react";
 import CourseRail from "@/app/components/CourseRail";
 import AppHeader from "@/app/components/AppHeader";
-import { courseBySlug, courses } from "@/app/lib/courses";
+import CodePlayground from "@/app/components/CodePlayground";
+import CourseQuiz from "@/app/components/CourseQuiz";
+import SiteFooter from "@/app/components/SiteFooter";
+import { courseBySlug, courses, getCourseCheckpoints } from "@/app/lib/courses";
+import type { StudyDomain } from "@/app/lib/study-domains";
 
 const videoEmbed = (url: string) => {
   const videoId = url.match(/[?&]v=([^&]+)/)?.[1];
@@ -34,10 +38,11 @@ export default function CourseDetailClient({ slug }: { slug: string }) {
   });
   const previous = () => lessonIndex === 0 ? router.push("/") : setLessonIndex((current) => current - 1);
   const next = () => setLessonIndex((current) => Math.min(course.lessons.length - 1, current + 1));
+  const selectDomain = (domain: StudyDomain) => router.push(`/?domain=${domain.slug}#study-path`);
 
   return (
     <div className={darkMode ? "app-shell app-shell--dark tutorial-shell" : "app-shell tutorial-shell"}>
-      <AppHeader darkMode={darkMode} searchQuery={searchQuery} onSearchChange={setSearchQuery} onThemeChange={toggleTheme} />
+      <AppHeader darkMode={darkMode} searchQuery={searchQuery} onSearchChange={setSearchQuery} onThemeChange={toggleTheme} onSelectDomain={selectDomain} />
       <CourseRail courses={courses.filter((item) => item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))} activeSlug={course.slug} onSelect={(item) => router.push(`/course/${item.slug}`)} />
       <main className="tutorial-layout">
         <aside className="lesson-sidebar">
@@ -46,15 +51,18 @@ export default function CourseDetailClient({ slug }: { slug: string }) {
         </aside>
         <article className="lesson-reader">
           <div className="lesson-reader__crumb"><Link href="/"><Home size={15} /> Home</Link><span>/</span><span>{course.name}</span></div>
-          <header><p className="eyebrow">Lesson {String(lessonIndex + 1).padStart(2, "0")}</p><h2>{course.name} {currentLesson.title}</h2></header>
+          <header><p className="eyebrow">Lesson {String(lessonIndex + 1).padStart(2, "0")}</p><h2>{course.name} {currentLesson.title}</h2><p className="lesson-objective"><strong>Goal:</strong> {currentLesson.objective}</p></header>
           <div className="lesson-nav"><button type="button" onClick={previous}><ChevronLeft size={18} /> {lessonIndex === 0 ? "Home" : "Previous"}</button><span>{lessonIndex + 1} / {course.lessons.length}</span><button type="button" onClick={next} disabled={lessonIndex === course.lessons.length - 1}>Next <ChevronRight size={18} /></button></div>
           <section className="lesson-explanation">{currentLesson.explain.split("\n").map((line, index) => <p key={`${index}-${line}`} dir={/[\u0600-\u06FF]/.test(line) ? "rtl" : "ltr"}>{line}</p>)}</section>
           <section className="lesson-example"><div><p className="eyebrow">Example</p><h3>Try it yourself</h3></div><pre><code>{currentLesson.example}</code></pre></section>
+          <CodePlayground key={currentLesson.id} initialCode={currentLesson.example} />
+          <CourseQuiz courseSlug={course.slug} fallbackQuestions={getCourseCheckpoints(course)} />
           <section className="lesson-video"><div><p className="eyebrow">Video course</p><h3>Continue learning with the course video</h3></div>{embedUrl ? <iframe src={embedUrl} title={`${course.name} video course`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <a href={course.linkVideo} target="_blank" rel="noreferrer">Watch course <ExternalLink size={15} /></a>}</section>
           <div className="lesson-nav lesson-nav--bottom"><button type="button" onClick={previous}><ChevronLeft size={18} /> Previous</button><button type="button" onClick={next} disabled={lessonIndex === course.lessons.length - 1}>Next <ChevronRight size={18} /></button></div>
         </article>
       </main>
-      <footer className="tutorial-footer"> <Link href="/"><ChevronLeft size={16} /> Browse all courses</Link><span>{darkMode ? <Moon size={14} /> : <Sun size={14} />} {course.name} tutorial</span></footer>
+      <div className="tutorial-footer"> <Link href="/"><ChevronLeft size={16} /> Browse all courses</Link><span>{darkMode ? <Moon size={14} /> : <Sun size={14} />} {course.name} tutorial</span></div>
+      <SiteFooter courseSlug={course.slug} />
     </div>
   );
 }
