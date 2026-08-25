@@ -5,6 +5,7 @@ import { CheckCircle2, LoaderCircle, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getCourseQuestions, type ApiQuestion } from "@/app/lib/api";
 import type { CourseQuestion } from "@/app/lib/courses";
+import { saveQuizAttempt } from "@/app/lib/study-storage";
 
 export default function CourseQuiz({ courseSlug, fallbackQuestions }: { courseSlug: string; fallbackQuestions: CourseQuestion[] }) {
   const [questions, setQuestions] = useState<ApiQuestion[]>(fallbackQuestions);
@@ -34,6 +35,7 @@ export default function CourseQuiz({ courseSlug, fallbackQuestions }: { courseSl
 
   const score = questions.reduce((total, question) => total + Number(answers[question.id] === question.answerIndex), 0);
   const restart = () => { setAnswers({}); setSubmitted(false); };
+  const submit = () => { setSubmitted(true); saveQuizAttempt(courseSlug, score, questions.length); };
 
   return (
     <section className="course-quiz" aria-labelledby="course-quiz-title">
@@ -49,7 +51,7 @@ export default function CourseQuiz({ courseSlug, fallbackQuestions }: { courseSl
           return <label key={option} className={`${isCorrect ? "is-correct" : ""} ${isWrong ? "is-wrong" : ""}`}><input type="radio" name={question.id} checked={selected === optionIndex} onChange={() => setAnswers((current) => ({ ...current, [question.id]: optionIndex }))} /><span>{option}</span></label>;
         })}</div>{submitted && <p className="quiz-question__explanation"><CheckCircle2 size={16} /> {question.explanation}</p>}</fieldset>;
       })}
-      <div className="course-quiz__actions">{submitted ? <><strong>{score} / {questions.length} correct</strong><button type="button" className="quiz-primary" onClick={restart}>Try again</button></> : <button type="button" className="quiz-primary" disabled={Object.keys(answers).length !== questions.length || loading} onClick={() => setSubmitted(true)}>{loading ? <><LoaderCircle size={16} className="is-spinning" /> Loading</> : "Check answers"}</button>}</div>
+      <div className="course-quiz__actions">{submitted ? <><strong>{score} / {questions.length} correct</strong><button type="button" className="quiz-primary" onClick={restart}>Try again</button></> : <button type="button" className="quiz-primary" disabled={Object.keys(answers).length !== questions.length || loading} onClick={submit}>{loading ? <><LoaderCircle size={16} className="is-spinning" /> Loading</> : "Check answers"}</button>}</div>
     </section>
   );
 }

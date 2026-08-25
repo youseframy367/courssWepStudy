@@ -1,0 +1,10 @@
+{
+  "entry": "main.typ",
+  "metadata": {
+    "author": "Course Web Study",
+    "subtitle": "Course Web Study",
+    "title": "دليل المذاكرة"
+  },
+  "mode": "report",
+  "theme": "report-theme.typ"
+}

@@ -12,6 +12,8 @@ import CourseQuiz from "@/app/components/CourseQuiz";
 import SiteFooter from "@/app/components/SiteFooter";
 import { courseBySlug, courses, getCourseCheckpoints } from "@/app/lib/courses";
 import type { StudyDomain } from "@/app/lib/study-domains";
+import StudyWorkspace from "@/app/components/StudyWorkspace";
+import BookLibrary from "@/app/components/BookLibrary";
 
 const videoEmbed = (url: string) => {
   const videoId = url.match(/[?&]v=([^&]+)/)?.[1];
@@ -57,6 +59,8 @@ export default function CourseDetailClient({ slug }: { slug: string }) {
           <section className="lesson-example"><div><p className="eyebrow">Example</p><h3>Try it yourself</h3></div><pre><code>{currentLesson.example}</code></pre></section>
           <CodePlayground key={currentLesson.id} initialCode={currentLesson.example} />
           <CourseQuiz courseSlug={course.slug} fallbackQuestions={getCourseCheckpoints(course)} />
+          <StudyWorkspace course={course} />
+          <BookLibrary courseSlug={course.slug} />
           <section className="lesson-video"><div><p className="eyebrow">Video course</p><h3>Continue learning with the course video</h3></div>{embedUrl ? <iframe src={embedUrl} title={`${course.name} video course`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <a href={course.linkVideo} target="_blank" rel="noreferrer">Watch course <ExternalLink size={15} /></a>}</section>
           <div className="lesson-nav lesson-nav--bottom"><button type="button" onClick={previous}><ChevronLeft size={18} /> Previous</button><button type="button" onClick={next} disabled={lessonIndex === course.lessons.length - 1}>Next <ChevronRight size={18} /></button></div>
         </article>

@@ -1,0 +1,11 @@
+{
+  "task_kind": "new-document",
+  "output": "pdf",
+  "signals": ["arabic bilingual study workbook", "downloadable course book"],
+  "hard_constraints": ["Arabic and English typography", "print-friendly table of contents", "code examples", "exercises"],
+  "content_features": {
+    "code_blocks": 12,
+    "defined_terms": 8,
+    "portrait_images": 0
+  }
+}

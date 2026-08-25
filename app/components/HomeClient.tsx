@@ -17,6 +17,8 @@ import { courses, type Course } from "@/app/lib/courses";
 import StudyPathExplorer from "@/app/components/StudyPathExplorer";
 import PracticeHub from "@/app/components/PracticeHub";
 import { studyDomains, type StudyDomain } from "@/app/lib/study-domains";
+import StudyWorkspace from "@/app/components/StudyWorkspace";
+import BookLibrary from "@/app/components/BookLibrary";
 
 export default function HomeClient() {
   const searchParams = useSearchParams();
@@ -87,6 +89,8 @@ export default function HomeClient() {
           <div id="featured-course"><CourseCard course={activeCourse} darkMode={darkMode} onPrevious={() => rotateCourse(-1)} onNext={() => rotateCourse(1)} /></div>
           <StudyPathExplorer domain={activeDomain} />
           <PracticeHub domain={activeDomain} />
+          <StudyWorkspace course={activeCourse} />
+          <BookLibrary />
           <ColorExplorer />
           <FontExplorer />
           <IconExplorer />

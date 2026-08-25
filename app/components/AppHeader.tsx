@@ -15,7 +15,12 @@ type HeaderProps = {
 };
 
 export default function AppHeader({ darkMode, searchQuery, onSearchChange, onThemeChange, onCheatSheets, onSelectDomain }: HeaderProps) {
-  const menuItems = ["Small projects", "Courses video", "Libraries", "Cheat Sheets", "Quizzes"];
+  const menuItems = [
+    { label: "مساحة المذاكرة", href: "/#study-desk" },
+    { label: "مكتبة الكتب", href: "/#books" },
+    { label: "Career Lab", href: "/career" },
+    { label: "Cheat Sheets", action: onCheatSheets },
+  ];
   const [isDomainDrawerOpen, setIsDomainDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -39,11 +44,9 @@ export default function AppHeader({ darkMode, searchQuery, onSearchChange, onThe
         <button className="domain-trigger" type="button" onClick={() => setIsDomainDrawerOpen((open) => !open)} aria-expanded={isDomainDrawerOpen} aria-controls="study-domain-drawer">
           مجالات المذاكرة <ChevronDown size={14} aria-hidden="true" />
         </button>
-        {menuItems.map((item) => (
-          <button key={item} type="button" onClick={() => item === "Cheat Sheets" && onCheatSheets?.()}>
-            {item}
-          </button>
-        ))}
+        {menuItems.map((item) => item.href ? (
+          <a key={item.label} href={item.href}>{item.label}</a>
+        ) : <button key={item.label} type="button" onClick={item.action}>{item.label}</button>)}
       </nav>
       <div className="header-controls">
         <label className="header-search">
